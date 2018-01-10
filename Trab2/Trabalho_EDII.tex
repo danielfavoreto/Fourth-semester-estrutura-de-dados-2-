@@ -1,0 +1,164 @@
+\documentclass{article}
+\usepackage[latin1]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\geometry{verbose,a4paper,tmargin=1.8cm,bmargin=1.8cm,lmargin=1.8cm,rmargin=1.8cm}
+\setlength{\parskip}{10pt}	% Vertical distance between two paragraphs
+\begin{document}
+% capa
+\begin{titlepage}
+\begin{center}
+{\large UNIVERSIDADE FEDERAL DO ESPÍRITO SANTO}\\[0.2cm]
+{\large DEPARTAMENTO DE INFORMÁTICA}\\[0.2cm]
+{\large CIÊNCIA DA COMPUTAÇÃO}\\[0.2cm]
+{\large ESTRUTURAS DE DADOS II}\\[5.1cm]
+{\bf \huge MÁQUINAS DE BUSCA}\\[5.1cm]
+\end{center}
+{\large Alunos: Daniel Favoreto e Rafael Athaydes}\\[0.7cm]
+{\large Professora: Mariella Berger}\\[3.1cm]
+\begin{center}
+{\large Vitória}\\[0.2cm]
+{\large 12 de Outubro de 2015}
+\newpage
+{\large\bf\huge Introdução}\\[1.2cm]
+\end{center}
+{ \large 
+
+Este trabalho tem como finalidade a implementação de máquinas de busca baseadas em diferentes estruturas de dados, utilizando duas estruturas de dados principais: Lista e Tabela Hash. O trabalho foi dividido em duas vertentes (módulos), sendo essas: Indexação e Busca. 
+
+No módulo indexação (Parte I), houve a implementação de tabela hash com 3 tratamentos de colisão diferentes. Foram utilizados tratamento de colisão por encadeamento, hashing linear e rehashing. E portanto, diferentes desempenhos foram obtidos de acordo com o tratamento de colisão.
+
+Neste mesmo módulo, o usuário pode especificar o modelo para a criação do índice, podendo ser tratamento de colisão por encadeamento, hashing linear e rehashing. Em seguida o usuário especifica um arquivo (podendo ter qualquer nome) contendo os nomes dos documentos a serem indexados. E por final, o usuário especifica o arquivo (podendo ter qualquer nome) que conterá os índices gerados pela indexação seguidos da palavra.
+
+O trabalho desenvolvido também permite a busca por palavras exatamente na posição em que são apresentadas nos documentos de entrada, através do módulo de Busca (Parte II). Neste módulo, o usuário especifica o modelo usado para a criação do índice, podendo ser tratamento de colisão por encadeamento, hashing linear e rehashing. Em seguida o usuário especifica o arquivo resultante do módulo anterior contendo os índices gerados seguidos da palavra. Por final, o usuário deve especificar o arquivo com as buscas a serem feitas podendo ser palavras ou frases completas. Neste módulo a saída na tela do usuário é a palavra ou frase buscada seguida de enter e os nomes dos documentos em que ela aparece.
+
+Vale notar que não houve a implementação de Árvore B neste trabalho.
+
+}
+\\
+\begin{center}
+\newpage {\large\bf\huge Implementação}\\[1.2cm]
+\end{center}
+{\large O trabalho é implementado na linguagem C e compilado no GCC. A figura 1 representa as estruturas de dados usadas: }
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.60\textwidth]{EstruturasDados}
+\caption{Estruturas de dados utilizadas}
+%\label{Rotulo}
+\end{figure}
+\\
+{\large 
+
+As estruturas utilizadas assim como a assinatura das funções estão no arquivo \textbf{FunctionsTrab.h}.
+
+Para a simplificação do uso convencionou-se criar o tipo string. A estrutura \texttt{ListaDocumentos} utiliza um campo para o nome do documento (\texttt{nome}), campo para o número de ocorrências da string no documento (\texttt{npos}), campo para a posição da string no documento (note que é a posição em relação às palavras e não em relação às linhas) (\texttt{pos}) e ponteiro para o próximo documento em que a string ocorre (\texttt{*prox}). A estrutura foi útil para todas as hashs e diferentes tratamentos de colisão (Encadeamento, Hashing Linear e Rehashing).
+
+A estrutura \texttt{ListaString} utiliza um campo para o nome da string (\texttt{nome}), ponteiro para a lista de documentos em que a palavra ocorre (\texttt{*docs}) e ponteiro para a próxima string (\texttt{*prox}). A estrutura foi idealizada primeiramente para a hash encadeada, para que as strings em que ocorressem colisão pudessem ser conectadas entre si, mas a dupla achou prático utilizá-la para as demais tabelas hash.
+
+No arquivo \textbf{Trabalho2.c} está a função \texttt{main} principal que recebe os parâmetros de entrada e faz a verificação se o número de argumentos corresponde com a especificação. Depois disso a função se encarrega de direcionar de acordo com o módulo de entrada (-i ou -b) a indexação ou a busca de palavras, assim como se encarrega de identificar o tipo do tratamento de colisão (E,L,R), caso o parâmetro (módulo) seja -i, passa para a função \textbf{indexarHash} que tem como parâmetros um dos tipos (E,L,R), os argumentos \texttt{argv[3]} e \texttt{argv[4]} que são os arquivos a serem indexados e o arquivo de saída que possuirá o índice gerado respectivamente. Caso seja o módulo -b como parâmetro, o fluxo se dirige para a função \textbf{buscarPalavra} que tem como parâmetros um dos tipos (E,L,R) e o argumento \textbf{argv[4]} que representa o arquivo que contém as palavras a serem buscadas.
+
+
+%\begin{itemize}
+%\item
+ \textbf{\large Funções utilizadas: }
+	%\begin{itemize}
+		%\item
+		
+ \textbf{\large Indexação:}
+		{\large As funções principais para este módulo estão representadas na figura abaixo.}
+	%	\end{itemize}
+		\begin{figure}[!htb]
+		\centering
+		\includegraphics[width=14cm]{FuncoesIndex}
+		\end{figure}
+
+A função \textbf{indexarHash} faz a leitura de string em string do arquivo de entrada e faz um cálculo aproximado do tamanho do arquivo de entrada. Essa função também é responsável por fazer a retirada de caracteres indesejados do texto. Em seguida faz um cálculo para o índice capturando cada caractere da palavra, e caso a posição do caractere na palavra seja par, utiliza a posição na tabela ASCII vezes a posição na palavra mais 7 e soma ao índice calculado anteriormente. Caso a posição do caractere na palavra seja ímpar, utiliza a posição na tabela ASCII vezes o índice calculado anteriormente mais a posição na palavra somado a 11. Esse índice da string é recalculado pegando-se o resto da divisão pelo tamanho da hash. De acordo com o tipo passado como parâmetro (E,L,R) chama-se uma das seguintes funções: \textbf {hashEncadeada},\textbf {reHash} ou \textbf {hashLinear}.
+		
+A função \textbf {hashEncadeada} tem o papel de alocar e inicializar uma hash Encadeada caso seja nula e chamar a função addString. Essa função tem o papel de verificar se no índice calculado anteriormente já possui alguma string, caso não haja insere a string na hash na posição especificada pela variável índice e adiciona o nome do documento na lista de documentos da string. Caso uma string já se encontra na posição, a função se encarrega de verificar se a string que já se encontra na hash é a mesma que se deseja inserir e apenas adiciona o documento na lista de documentos da palavra. Se for uma string diferente, tem-se uma lista de strings na mesma posição, portanto, a função adiciona a nova string no final da lista de strings dessa posição e adiciona também o documento em que se encontra além de inserir a posição em que a palavra se encontra no campo \texttt {pos}.
+
+A função \textbf {reHash} tem o papel de alocar o dobro do tamanho atual da hash mais um e inicializar uma hash caso seja nula e verificar se no índice calculado anteriormente já possui alguma string, caso não haja insere a string na hash na posição especificada pela variável índice e adiciona o nome do documento na lista de documentos da string. Caso uma string já se encontra na posição, a função se encarrega de verificar se a string que já se encontra na hash é a mesma que se deseja inserir e apenas adiciona o documento na lista de documentos da palavra. Caso contrário, a função utiliza uma segunda hash que será utilizada com o resto da divisão pelo tamanho da hash. Enquanto houver colisão esse processo de rehash é feito até que se encontre uma posição vazia da hash para inserir a string.
+ 
+A função \textbf{hashLinear} tem o papel de alocar o dobro do tamanho atual da hash mais um e inicializar uma hash caso seja nula e verificar se no índice calculado anteriormente já possui alguma string, caso não haja insere a string na hash na posição especificada pela variável índice e adiciona o nome do documento na lista de documentos da string. Caso uma string já se encontra na posição, a função se encarrega de verificar se a string que já se encontra na hash é a mesma que se deseja inserir e apenas adiciona o documento na lista de documentos da palavra. Caso contrário, a função vai iterando nas posições da hash sequencialmente de posição em posição até que encontre ou uma posição livre ou já tenha iterado em todas as posições possíveis da hash para a partir daí inserir a string.
+
+Tem-se também que ao final da indexação a função \textbf {indexarHash} chama a função \textbf {gerarIndice} para imprimir no arquivo indiceGerado as palavras indexadas seguidas do número de ocorrências e a posição que se encontram no texto.
+
+Ainda na função \txtbf{main} principal invoca-se a função \textbf {liberarPonteiros} para fazer a desalocação da hash e de memória e os respectivos "frees".
+
+		%\item
+ \textbf{\large Busca:}
+		{\large As funções principais para este módulo estão representadas na figura abaixo.}
+		\begin{figure}[!htb]
+		\centering
+		\includegraphics[width=14cm]{FuncoesBusca}
+		\end{figure}
+A função \textbf {buscarPalavra} faz a leitura do arquivo que contém as palavras a serem buscadas e direciona de acordo com o tipo (E,L,R) uma das 3 funções: \textbf{buscarHashEncad, buscarReHash,buscarHashLin}
+		
+A função \textbf{buscarHashEncad} faz o mesmo cálculo de índice da função \textbf {indexarHash} e acessa a posição especificada pelo índice na tabela hash. A função verifica os documentos de cada palavra e posteriormente imprime na tela os documentos em que a palavra se encontra.
+
+A função \textbf{buscarReHash} executa o mesmo cálculo do índice que a função \textbf{buscarHashEncad} executa, com a diferença que caso a posição acessada na tabela hash esteja vazia, a função utiliza o mesmo processo de recálculo da função hash que a função \textbf {reHash} executa, caso encontre uma posição não nula, executa os mesmos passos de verificação e impressão que a função \textbf{buscarHashEncad} executa e caso encontre uma posição não vazia, verifica se a palavra buscada coincide com a palavra na posição da tabela hash, caso verdadeiro, verifica os documentos de cada palavra e posteriormente imprime na tela os documentos em que a palavra se encontra, caso contrário, faz o recálculo da hash até encontrar a palavra buscada.
+
+A função \textbf{buscarHashLin} executa o mesmo cálculo do índice que a função \textbf{buscarHashEncad} executa, com a diferença que caso a posição acessada na tabela hash esteja vazia, a função procura a palavra nas posições seguintes até encontrar a palavra buscada e verifica os documentos da palavra buscada e os imprime na tela. Caso a posição esteja não vazia, a função apenas faz o processo de verificar os documentos e os imprimir na tela.
+
+Ainda na função \txtbf{main} principal invoca-se a função \textbf {liberarPonteiros} para fazer a desalocação da hash e de memória e os respectivos "frees".
+		%\end{itemize}
+	\newpage
+	\begin{center}
+	{\large\bf\huge Análise}\\[1.2cm]
+	
+	\end{center}	
+	
+	{\large Elaboramos uma entrada para comparativo entre os 3 principais tipos de tratamento de colisão sendo hash encadeada, hash linear e rehash com os respectivos tempos de execução:}
+
+	\includegraphics[width = 3cm]{entrada}\\
+	\includegraphics[width = 10cm]{saida_i_e}\\
+	\includegraphics[width = 10cm]{saida_i_l}\\
+	\includegraphics[width = 10cm]{saida_i_r}\\
+	\includegraphics[width = 10cm]{saida_b_e}\\
+	\includegraphics[width = 10cm]{saida_b_i}\\
+	\includegraphics[width = 10cm]{saida_b_r}\\
+	
+	
+	{\large 
+	
+Como pode-se constatar, o tratamento de colisão por encadeamento torna-se mais eficiente em relação aos demais tratamentos em virtude da simplicidade de adicionar as palavras com colisão ao final de uma lista. Vale lembrar de que foi usada a Bíblia para a indexação.
+
+O desempenho da rehash foi o pior entre os 3 como já esperado, uma vez que calcula várias vezes os índices das palavras quando sofrem colisão na tabela, o que leva a um desempenho pior em relação aos demais tratamentos.
+
+A hash linear apesar de apresentar uma simplicidade para tratar colisões, a procura por uma próxima posição livre faz com que o algoritmo torne-se pouco eficiente principalmente tratando-se da indexação de um arquivo extenso como a bíblia.
+}
+\newpage
+	\begin{center}
+	{\large\bf\huge Conclusão}\\[1.2cm]
+	
+	\end{center}
+	{\large Como demonstrado na implementação, os tratamentos de colisão por Hash Encadeada, Hash Linear e ReHash exigiram esforço por parte da dupla para compreender a teoria e implementar na prática para que fossem feitas com êxito. Obteve-se um grande acúmulo de conhecimento com relação à como implementar e qual tratamento utilizar dependendo do uso.
+	
+	Devido à pesquisas de outros tratamentos de colisão, a dupla compreendeu que existem algoritmos mais sofisticados que podem comprometer um pouco mais o desempenho de indexação mas que para buscas na tabela podem oferecer menos trabalho e melhor espalhamento.
+	
+	Constatou-se que a função reHash ofereceu um melhor espalhamento na tabela hash.
+	
+	As aulas dadas em sala de aula a respeito do assunto também forneceram uma boa base para que fossem implementados os algoritmos, embora não houve a implementação de Árvore B, a dupla compreendeu seu uso e importância principalmente nas buscas.}
+	\newpage
+	\begin{center}
+	{\large\bf\huge Bibliografia}\\[1.2cm]
+	\end{center}
+	{\large
+	
+	\textbf {Sites da web:}\\
+	
+	\textsf {stackoverflow.com}\\
+	
+	\textsf {en.wikipedia.org}\\
+
+	\textbf {Livros:}\\
+	
+	ZIVIANI, N. Projeto de Algoritmos, Cengage Learning. }
+	
+%\end{itemize}
+
+\end{titlepage}
+\end{document}

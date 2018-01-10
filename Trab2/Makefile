@@ -1,0 +1,13 @@
+all: compile
+
+compile:
+	
+	gcc FunctionsTrab.c -c -O0 -g3 -Wall -fmessage-length=0 -std=c99
+	gcc FunctionsTrab.o Trabalho2.c -Wall -g -lm -o trab2	
+run:
+		
+	./trab2
+	
+clean:
+	rm trab2 FunctionsTrab.o
+

@@ -1,0 +1,37 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <ctype.h>
+#define STRLEN 30
+
+typedef char* string;
+
+typedef struct listaDocumentos{
+	string nome;
+	int *pos,nPos;
+	struct listaDocumentos *prox;
+}ListaDocumentos;
+
+typedef struct listaString{ // Hash Encadeada
+	string palavra;
+	ListaDocumentos *docs;
+	struct listaString *prox;
+}ListaString;
+
+//Funções
+void indexarHash(char tipo,string entradaDocs, string indiceGerado); 
+void hashEncadeada(string palavra, int indice, int posicao,string nomeDoc); 
+void reHash(string palavra, int indice, int posicao, string nomeDoc); 
+void hashLinear(string palavra, int indice, int posicao, string nomeDoc); 
+void addDoc(string doc,ListaDocumentos *d,int pos); 
+void addString(int indice,string palavra,int pos,string nomeDoc); 
+void liberarPonteiros(char tipo);
+int aceitavel(string palavra); 
+void gerarIndice(int tamanho,char tipo, string indiceGerado); 
+int tamanhoHash(string entradaDocs); 
+void lerIndice(char tipo, string arqIndice );
+void buscarHashEncad (string arqPalavras); //bu
+void buscarHashLin(string arqPalavras); //bu
+void buscarReHash(string arqPalavras); //bu
